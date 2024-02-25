@@ -1,0 +1,5 @@
+{
+  // prettier auto format on save
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+}
