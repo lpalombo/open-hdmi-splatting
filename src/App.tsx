@@ -4,6 +4,8 @@ import { Box, Environment, OrbitControls, PerspectiveCamera, View } from '@react
 import { Splat, SplatMaterialType } from './Splat';
 import { ReactNode, forwardRef, useRef } from 'react';
 import { Matrix4 } from 'three';
+import { Scene } from './Scene';
+import { AudioProcessor } from './AudioProcessor';
 
 const matrix = new Matrix4();
 const HALF_PI = Math.PI / 2;
@@ -15,7 +17,7 @@ function App() {
       <div id="canvas-container" ref={container}>
         <div className="top-section">
           <PanelView className="panel panel-west">
-            <Scene />
+            <Scene matrix={matrix} />
             <PerspectiveCamera
               makeDefault
               position={[0, 0, 0]}
@@ -24,7 +26,7 @@ function App() {
             />
           </PanelView>
           <PanelView className="panel panel-north">
-            <Scene />
+            <Scene matrix={matrix} />
             <PerspectiveCamera
               makeDefault
               position={[0, 0, 0]}
@@ -33,7 +35,7 @@ function App() {
             />
           </PanelView>
           <PanelView className="panel panel-east">
-            <Scene />
+            <Scene matrix={matrix} />
             <PerspectiveCamera
               makeDefault
               position={[0, 0, 0]}
@@ -42,7 +44,7 @@ function App() {
             />
           </PanelView>
           <PanelView className="panel panel-south">
-            <Scene />
+            <Scene matrix={matrix} />
             <PerspectiveCamera
               makeDefault
               position={[0, 0, 0]}
@@ -53,7 +55,7 @@ function App() {
         </div>
 
         <PanelView className="bottom-section">
-          <Scene />
+          <Scene matrix={matrix} />
           <PerspectiveCamera makeDefault position={[0, 0, 0.001]} />
           <OrbitControls enableZoom={false} target={[0, 0, 0]} />
         </PanelView>
@@ -64,6 +66,7 @@ function App() {
           eventPrefix="client"
           className="canvas">
           <View.Port />
+          <AudioProcessor />
         </Canvas>
       </div>
     </>
@@ -83,33 +86,5 @@ const PanelView = forwardRef<HTMLDivElement, { children: ReactNode; className?: 
     );
   }
 );
-
-function Scene() {
-  const group = useRef<THREE.Group>(null!);
-
-  useFrame(({ clock }) => {
-    group.current.position.x = Math.sin(clock.getElapsedTime() * 2) * 5;
-    group.current.position.z = Math.cos(clock.getElapsedTime() * 2) * 5;
-  });
-
-  return (
-    <>
-      <color attach="background" args={['#171720']} />
-      <ambientLight />
-      <Environment preset="sunset" background />
-      <group matrixAutoUpdate={false} onUpdate={self => (self.matrix = matrix)}>
-        <group ref={group}>
-          <Box args={[1, 1, 1]} position={[0, 0, 0]} />
-        </group>
-        {/* <group ref={group}>
-          <Splat
-            src="https://pub-c94e113880784f8f8227940d6abceeef.r2.dev/gs_Ichiban_Living.splat"
-            position={[0, 0, 0]}
-          />
-        </group> */}
-      </group>
-    </>
-  );
-}
 
 export default App;
