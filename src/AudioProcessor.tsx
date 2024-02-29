@@ -1,17 +1,26 @@
 import { Html } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
-import { useEffect, useState } from 'react';
-import { DataTexture, RedFormat } from 'three';
+import { useEffect, useRef, useState } from 'react';
+import { DataTexture, MathUtils, RedFormat, RepeatWrapping } from 'three';
 import * as TONE from 'tone';
 import { create } from 'zustand';
 
-const FFT_SIZE = 1024;
+const FFT_SIZE = 512;
 
 type AudioStore = {
   audioTexture: DataTexture;
 };
 export const useAudioStore = create<AudioStore>(set => ({
-  audioTexture: new DataTexture(new Uint8Array(FFT_SIZE), FFT_SIZE / 2, 1, RedFormat),
+  audioTexture: new DataTexture(
+    new Uint8Array(FFT_SIZE * 2),
+    FFT_SIZE,
+    2,
+    RedFormat,
+    undefined,
+    undefined,
+    RepeatWrapping,
+    RepeatWrapping
+  ),
 }));
 
 export function AudioProcessor() {
@@ -22,6 +31,8 @@ export function AudioProcessor() {
   const [device, setDevice] = useState<string>();
 
   const audioTexture = useAudioStore(state => state.audioTexture);
+
+  let lowRMTValue: number;
 
   useEffect(() => {
     TONE.UserMedia.enumerateDevices().then(devices => {
@@ -36,6 +47,9 @@ export function AudioProcessor() {
       if (FFT) {
         FFT.dispose();
       }
+      if (RMS) {
+        RMS.dispose();
+      }
     };
   }, []);
 
@@ -46,26 +60,56 @@ export function AudioProcessor() {
       type: 'lowpass',
       frequency: 180,
     });
-    // const meter = new TONE.Meter();
-    // setRMS(meter);
+    const meter = new TONE.Meter();
+    setRMS(meter);
     const mic = new TONE.UserMedia();
 
     mic.open(device).then(() => {
       const FFT = new TONE.FFT(FFT_SIZE);
       mic.connect(filter);
-      filter.connect(FFT);
-      // filter.connect(meter);
+      mic.connect(FFT);
+      filter.connect(meter);
       // filter.toDestination();
       setFFT(FFT);
     });
     setMic(mic);
   };
 
-  useFrame(() => {
-    if (!mic || !FFT) return;
+  const gradData = new Uint8Array(FFT_SIZE).map((_, i) => (i / FFT_SIZE) * 255);
+  // console.log(gradData);
+  // const notHitData = new Uint8Array(FFT_SIZE).fill(0);
+  const hit = useRef(0);
+  const hitCount = useRef(0);
+  const hitCountLerped = useRef(0);
+  const cooldown = useRef(0);
+  const lastRMTValue = useRef(0);
+
+  useFrame((_, delta) => {
+    if (!mic || !FFT || !RMS) return;
     const data = FFT.getValue();
-    audioTexture.image.data.set(data);
-    // console.log(RMS.getValue());
+    lowRMTValue = RMS.getValue() as number;
+    if (lowRMTValue > -20 && lastRMTValue.current < -20 && cooldown.current <= 0) {
+      // TODO make threshold adjustable
+      hit.current = 1;
+      hitCount.current += 0.5;
+      cooldown.current = 1;
+    }
+    lastRMTValue.current = lowRMTValue;
+    if (hit.current > 0) {
+      hit.current -= 1 * delta;
+    }
+    if (cooldown.current > 0) {
+      cooldown.current -= 3 * delta;
+    }
+    hitCountLerped.current = MathUtils.lerp(hitCountLerped.current, hitCount.current, 0.1);
+    audioTexture.offset.x = hitCountLerped.current;
+    audioTexture.updateMatrix();
+    // console.log(hitCountLerped.current);
+    // audioTexture.image.data.set(new Uint8Array(FFT_SIZE).fill(hit.current * 255));
+    // audioTexture.image.data.set(hitData);
+    // console.log(data);
+    audioTexture.image.data.set([...gradData, ...data]);
+
     audioTexture.needsUpdate = true;
   });
 

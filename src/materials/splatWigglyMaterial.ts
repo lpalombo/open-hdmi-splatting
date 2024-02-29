@@ -10,6 +10,7 @@ export type SplatWigglyMaterialType = {
   focal?: number;
   time?: number;
   audioTexture?: THREE.DataTexture;
+  audioTextureMatrix?: THREE.Matrix3;
 };
 
 export const SplatWigglyMaterial = /* @__PURE__ */ shaderMaterial(
@@ -21,6 +22,7 @@ export const SplatWigglyMaterial = /* @__PURE__ */ shaderMaterial(
     covAndColorTexture: null,
     time: 0,
     audioTexture: null,
+    audioTextureMatrix: new THREE.Matrix3(),
   },
   /*glsl*/ `
     precision highp sampler2D;
@@ -34,6 +36,7 @@ export const SplatWigglyMaterial = /* @__PURE__ */ shaderMaterial(
     uniform sampler2D centerAndScaleTexture;
     uniform usampler2D covAndColorTexture;
     uniform sampler2D audioTexture;
+    uniform mat3 audioTextureMatrix;
 
     // CUSTOM
     uniform float time;
@@ -56,12 +59,14 @@ export const SplatWigglyMaterial = /* @__PURE__ */ shaderMaterial(
       vec4 center = vec4(centerAndScaleData.xyz, 1);
       ivec2 audioTexSize = textureSize(audioTexture, 0);
       ivec2 audioTexPos = ivec2(splatIndex%uint(audioTexSize.x), splatIndex/uint(audioTexSize.x));
-      vec4 audioData = texture2D(audioTexture, vec2(center.z, 0.0));
+      vec4 bassData = texture2D(audioTexture, (audioTextureMatrix * vec3(center.z, 0.0, 1.0)).xy);
+      vec4 audioData = texture2D(audioTexture, vec2(center.z, 0.5));
 
       // CUSTOM
       center.xyz += vec3(
-        0.0,
-        audioData.x * 0.5,
+        (bassData.x * 0.5),
+        (audioData.x * 0.5),
+        // (audioData.x * 0.5),
         0.0
       );
       // END CUSTOM

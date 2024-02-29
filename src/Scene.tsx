@@ -23,9 +23,9 @@ export function Scene(props: { matrix: Matrix4 }) {
         {/* <group ref={group}>
         </group> */}
         <group ref={group}>
-          {/* <Box args={[1, 1, 1]} position={[0, 0, 1]}>
+          <Box args={[1, 1, 1]} position={[0, 0, 1]} scale={0.5}>
             <meshBasicMaterial color="red" map={audioTexture} />
-          </Box> */}
+          </Box>
           <Splat
             src="https://pub-c94e113880784f8f8227940d6abceeef.r2.dev/gs_church.splat"
             position={[-2, -0.5, 0]}

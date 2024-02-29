@@ -586,6 +586,7 @@ export function Splat(props: SplatProps) {
     shared.update(ref.current, camera, alphaHash);
     if (ref.current.material.uniforms.time) {
       ref.current.material.uniforms.time.value += delta;
+      ref.current.material.uniforms.audioTextureMatrix.value = audioTexture.matrix;
     }
   });
 
