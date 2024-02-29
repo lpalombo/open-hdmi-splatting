@@ -13,6 +13,7 @@ import {
   SplatStylizedMaterial,
   SplatStylizedMaterialType,
 } from './materials/splatStylizedMaterial';
+import { useAudioStore } from './AudioProcessor';
 
 export type TargetMesh = THREE.Mesh<
   THREE.InstancedBufferGeometry,
@@ -554,20 +555,23 @@ function pushDataBuffer(shared: SharedState, buffer: ArrayBufferLike, vertexCoun
 
 export type SplatMaterialType = 'base' | 'wiggly' | 'stylized';
 
-export function Splat({
-  src,
-  toneMapped = false,
-  alphaTest = 0,
-  alphaHash = false,
-  chunkSize = 25000,
-  materialType = 'base',
-  ...props
-}: SplatProps & { materialType?: SplatMaterialType }) {
-  extend({ SplatBaseMaterial, SplatWigglyMaterial, SplatStylizedMaterial });
+export function Splat(props: SplatProps) {
+  const {
+    src,
+    toneMapped = false,
+    alphaTest = 0,
+    alphaHash = false,
+    chunkSize = 25000,
+    ...restProps
+  } = props;
+
+  extend({ SplatBaseMaterial, SplatWigglyMaterial });
 
   const ref = React.useRef<TargetMesh>(null!);
   const gl = useThree(state => state.gl);
   const camera = useThree(state => state.camera);
+
+  const audioTexture = useAudioStore(state => state.audioTexture);
 
   // Shared state, globally memoized, the same url re-uses the same daza
   const shared = useLoader(SplatLoader as unknown as LoaderProto<unknown>, src, loader => {
@@ -586,52 +590,21 @@ export function Splat({
   });
 
   return (
-    <mesh ref={ref} frustumCulled={false} {...props}>
-      {materialType === 'base' && (
-        <splatBaseMaterial
-          key={`${src}/${alphaTest}/${alphaHash}${SplatBaseMaterial.key}`}
-          transparent={!alphaHash}
-          depthTest
-          alphaTest={alphaHash ? 0 : alphaTest}
-          centerAndScaleTexture={shared.centerAndScaleTexture}
-          covAndColorTexture={shared.covAndColorTexture}
-          depthWrite={alphaHash ? true : alphaTest > 0}
-          blending={alphaHash ? THREE.NormalBlending : THREE.CustomBlending}
-          blendSrcAlpha={THREE.OneFactor}
-          alphaHash={!!alphaHash}
-          toneMapped={toneMapped}
-        />
-      )}
-      {materialType === 'wiggly' && (
-        <splatWigglyMaterial
-          key={`${src}/${alphaTest}/${alphaHash}${SplatWigglyMaterial.key}`}
-          transparent={!alphaHash}
-          depthTest
-          alphaTest={alphaHash ? 0 : alphaTest}
-          centerAndScaleTexture={shared.centerAndScaleTexture}
-          covAndColorTexture={shared.covAndColorTexture}
-          depthWrite={alphaHash ? true : alphaTest > 0}
-          blending={alphaHash ? THREE.NormalBlending : THREE.CustomBlending}
-          blendSrcAlpha={THREE.OneFactor}
-          alphaHash={!!alphaHash}
-          toneMapped={toneMapped}
-        />
-      )}
-      {materialType === 'stylized' && (
-        <splatStylizedMaterial
-          key={`${src}/${alphaTest}/${alphaHash}${SplatStylizedMaterial.key}`}
-          transparent={!alphaHash}
-          depthTest
-          alphaTest={alphaHash ? 0 : alphaTest}
-          centerAndScaleTexture={shared.centerAndScaleTexture}
-          covAndColorTexture={shared.covAndColorTexture}
-          depthWrite={alphaHash ? true : alphaTest > 0}
-          blending={alphaHash ? THREE.NormalBlending : THREE.CustomBlending}
-          blendSrcAlpha={THREE.OneFactor}
-          alphaHash={!!alphaHash}
-          toneMapped={toneMapped}
-        />
-      )}
+    <mesh ref={ref} frustumCulled={false} {...restProps}>
+      <splatWigglyMaterial
+        key={`${src}/${alphaTest}/${alphaHash}${SplatWigglyMaterial.key}`}
+        transparent={!alphaHash}
+        depthTest
+        alphaTest={alphaHash ? 0 : alphaTest}
+        centerAndScaleTexture={shared.centerAndScaleTexture}
+        covAndColorTexture={shared.covAndColorTexture}
+        depthWrite={alphaHash ? true : alphaTest > 0}
+        blending={alphaHash ? THREE.NormalBlending : THREE.CustomBlending}
+        blendSrcAlpha={THREE.OneFactor}
+        alphaHash={!!alphaHash}
+        toneMapped={toneMapped}
+        audioTexture={audioTexture}
+      />
     </mesh>
   );
 }

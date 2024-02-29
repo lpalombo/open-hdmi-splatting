@@ -55,14 +55,14 @@ export function AudioProcessor() {
       mic.connect(filter);
       filter.connect(FFT);
       // filter.connect(meter);
-      filter.toDestination();
+      // filter.toDestination();
       setFFT(FFT);
     });
     setMic(mic);
   };
 
   useFrame(() => {
-    if (!mic || !FFT || !RMS) return;
+    if (!mic || !FFT) return;
     const data = FFT.getValue();
     audioTexture.image.data.set(data);
     // console.log(RMS.getValue());
