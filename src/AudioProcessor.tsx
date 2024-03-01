@@ -36,7 +36,8 @@ export function AudioProcessor() {
   let normRMTValue: number;
 
   useEffect(() => {
-    TONE.UserMedia.enumerateDevices().then(devices => {
+    if (!navigator?.mediaDevices) return;
+    navigator.mediaDevices.enumerateDevices().then(devices => {
       setDevices(devices);
       setDevice(devices[0].deviceId);
     });
