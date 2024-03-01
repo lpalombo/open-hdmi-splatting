@@ -36,10 +36,11 @@ export function AudioProcessor() {
   let normRMTValue: number;
 
   useEffect(() => {
-    if (!navigator?.mediaDevices) return;
-    navigator.mediaDevices.enumerateDevices().then(devices => {
-      setDevices(devices);
-      setDevice(devices[0].deviceId);
+    navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+      navigator.mediaDevices.enumerateDevices().then(devices => {
+        setDevices(devices);
+        setDevice(devices[0].deviceId);
+      });
     });
     return () => {
       if (mic) {
