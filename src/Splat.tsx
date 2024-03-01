@@ -9,10 +9,6 @@ import * as React from 'react';
 import { extend, useThree, useFrame, useLoader, LoaderProto } from '@react-three/fiber';
 import { SplatBaseMaterial, SplatBaseMaterialType } from './materials/splatBaseMaterial';
 import { SplatWigglyMaterial, SplatWigglyMaterialType } from './materials/splatWigglyMaterial';
-import {
-  SplatStylizedMaterial,
-  SplatStylizedMaterialType,
-} from './materials/splatStylizedMaterial';
 import { useAudioStore } from './AudioProcessor';
 
 export type TargetMesh = THREE.Mesh<
@@ -57,7 +53,6 @@ declare global {
     interface IntrinsicElements {
       splatBaseMaterial: SplatBaseMaterialType & JSX.IntrinsicElements['shaderMaterial'];
       splatWigglyMaterial: SplatWigglyMaterialType & JSX.IntrinsicElements['shaderMaterial'];
-      splatStylizedMaterial: SplatStylizedMaterialType & JSX.IntrinsicElements['shaderMaterial'];
     }
   }
 }

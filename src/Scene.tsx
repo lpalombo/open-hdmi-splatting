@@ -77,7 +77,7 @@ export function Scene(props: { matrix: Matrix4; viewport?: Vector4 }) {
           <Splat
             {...SPLAT_SCENES[currentScene]}
             viewport={viewport}
-            alphaHash
+            // alphaHash
             // alphaTest={0.1}
           />
         </group>

@@ -26,6 +26,9 @@ const largeCamMainFov =
   (Math.atan(Math.tan((largeCamHFOV * Math.PI) / 360) / largeCamAspect) * 360) / Math.PI;
 const largeViewport = new Vector4(0, 0, 2636, 742);
 
+// query param includes debug
+const debug = new URLSearchParams(window.location.search).has('debug');
+
 function App() {
   const container = useRef<HTMLDivElement>(null!);
   return (
@@ -73,12 +76,13 @@ function App() {
             />
           </PanelView>
         </div>
-
-        <PanelView className="bottom-section">
-          <Scene matrix={matrix} />
-          <PerspectiveCamera makeDefault position={[0, 0, 0.001]} />
-          <OrbitControls enableZoom={false} target={[0, 0, 0]} />
-        </PanelView>
+        {debug && (
+          <PanelView className="bottom-section">
+            <Scene matrix={matrix} />
+            <PerspectiveCamera makeDefault position={[0, 0, 0.001]} />
+            <OrbitControls enableZoom={false} target={[0, 0, 0]} />
+          </PanelView>
+        )}
         <Canvas
           dpr={[0.5, 1]}
           // camera={{ position: [-3, 1, -5.5], fov: 45, near: 1, far: 100 }}

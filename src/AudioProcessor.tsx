@@ -1,6 +1,6 @@
 import { Html } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
-import { useEffect, useRef, useState } from 'react';
+import { FormEvent, useEffect, useRef, useState } from 'react';
 import { DataTexture, MathUtils, RedFormat, RepeatWrapping } from 'three';
 import * as TONE from 'tone';
 import { create } from 'zustand';
@@ -54,7 +54,7 @@ export function AudioProcessor() {
     };
   }, []);
 
-  const handleMicOpen = async (e: Event) => {
+  const handleMicOpen = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!device) return;
     await TONE.start();
