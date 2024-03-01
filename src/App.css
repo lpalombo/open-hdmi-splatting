@@ -56,3 +56,11 @@
   width: 100vw;
   height: 100vh;
 }
+
+.show-on-hover {
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+}
+.show-on-hover:hover {
+  opacity: 1;
+}

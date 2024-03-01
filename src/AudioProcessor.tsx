@@ -33,6 +33,7 @@ export function AudioProcessor() {
   const audioTexture = useAudioStore(state => state.audioTexture);
 
   let lowRMTValue: number;
+  let normRMTValue: number;
 
   useEffect(() => {
     TONE.UserMedia.enumerateDevices().then(devices => {
@@ -53,7 +54,8 @@ export function AudioProcessor() {
     };
   }, []);
 
-  const handleMicOpen = async () => {
+  const handleMicOpen = async (e: Event) => {
+    e.preventDefault();
     if (!device) return;
     await TONE.start();
     const filter = new TONE.Filter({
@@ -88,6 +90,7 @@ export function AudioProcessor() {
     if (!mic || !FFT || !RMS) return;
     const data = FFT.getValue();
     lowRMTValue = RMS.getValue() as number;
+    normRMTValue = MathUtils.mapLinear(lowRMTValue, -120, 0, 0, 1);
     if (lowRMTValue > -20 && lastRMTValue.current < -20 && cooldown.current <= 0) {
       // TODO make threshold adjustable
       hit.current = 1;
@@ -108,7 +111,10 @@ export function AudioProcessor() {
     // audioTexture.image.data.set(new Uint8Array(FFT_SIZE).fill(hit.current * 255));
     // audioTexture.image.data.set(hitData);
     // console.log(data);
-    audioTexture.image.data.set([...gradData, ...data]);
+    audioTexture.image.data.set([
+      ...new Uint8Array(FFT_SIZE).map((_, i) => (i / FFT_SIZE) * (normRMTValue * 255)),
+      ...data,
+    ]);
 
     audioTexture.needsUpdate = true;
   });
@@ -116,7 +122,7 @@ export function AudioProcessor() {
   return (
     <>
       <Html>
-        <form>
+        <form className="show-on-hover" onSubmit={handleMicOpen}>
           {/* choose input */}
           <select
             onChange={e => {
@@ -137,8 +143,8 @@ export function AudioProcessor() {
                   </option>
                 ))}
           </select>
+          <button>Start</button>
         </form>
-        <button onClick={handleMicOpen}>Start</button>
       </Html>
     </>
   );
