@@ -48,7 +48,7 @@ export type SharedState = {
   covAndColorTexture: THREE.DataTexture;
   centerAndScaleTexture: THREE.DataTexture;
   connect(target: TargetMesh): () => void;
-  update(target: TargetMesh, camera: THREE.Camera, hashed: boolean): void;
+  update(target: TargetMesh, camera: THREE.Camera, hashed: boolean, viewport?: THREE.Vector4): void;
   onProgress?: (event: ProgressEvent) => void;
 };
 
@@ -73,6 +73,7 @@ type SplatProps = {
   alphaHash?: boolean;
   /** Chunk size for lazy loading, prevents chokings the worker, default: 25000 (25kb) */
   chunkSize?: number;
+  viewport?: THREE.Vector4;
 } & JSX.IntrinsicElements['mesh'];
 
 function createWorker(self: any) {
@@ -168,8 +169,12 @@ class SplatLoader extends THREE.Loader {
         )
       ),
       manager: this.manager,
-      update: (target: TargetMesh, camera: THREE.Camera, hashed: boolean) =>
-        update(camera, shared, target, hashed),
+      update: (
+        target: TargetMesh,
+        camera: THREE.Camera,
+        hashed: boolean,
+        viewport?: THREE.Vector4
+      ) => update(camera, shared, target, hashed, viewport),
       connect: (target: TargetMesh) => connect(shared, target),
       loading: false,
       loaded: false,
@@ -339,14 +344,23 @@ async function lazyLoad(shared: SharedState) {
   shared.manager.itemEnd(shared.url);
 }
 
-function update(camera: THREE.Camera, shared: SharedState, target: TargetMesh, hashed: boolean) {
+function update(
+  camera: THREE.Camera,
+  shared: SharedState,
+  target: TargetMesh,
+  hashed: boolean,
+  viewport?: THREE.Vector4
+) {
   camera.updateMatrixWorld();
   shared.gl.getCurrentViewport(target.viewport);
+
+  const _viewport = viewport || target.viewport;
+
   // @ts-ignore
-  target.material.viewport.x = target.viewport.z;
+  target.material.viewport.x = _viewport.z;
   // @ts-ignore
-  target.material.viewport.y = target.viewport.w;
-  target.material.focal = (target.viewport.w / 2.0) * Math.abs(camera.projectionMatrix.elements[5]);
+  target.material.viewport.y = _viewport.w;
+  target.material.focal = (_viewport.w / 2.0) * Math.abs(camera.projectionMatrix.elements[5]);
 
   if (target.ready) {
     if (hashed && target.sorted) return;
@@ -562,6 +576,7 @@ export function Splat(props: SplatProps) {
     alphaTest = 0,
     alphaHash = false,
     chunkSize = 25000,
+    viewport,
     ...restProps
   } = props;
 
@@ -583,7 +598,8 @@ export function Splat(props: SplatProps) {
   React.useLayoutEffect(() => shared.connect(ref.current), [src]);
   // Update the worker
   useFrame((_, delta) => {
-    shared.update(ref.current, camera, alphaHash);
+    // console.log(viewport);
+    shared.update(ref.current, camera, alphaHash, viewport);
     if (ref.current.material.uniforms.time) {
       ref.current.material.uniforms.time.value += delta;
       ref.current.material.uniforms.audioTextureMatrix.value = audioTexture.matrix;

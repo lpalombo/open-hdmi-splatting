@@ -64,9 +64,9 @@ export const SplatWigglyMaterial = /* @__PURE__ */ shaderMaterial(
 
       // CUSTOM
       center.xyz += vec3(
+        // sin(pow(bassData.x, 2.0) * 10.) * 0.2,
         (bassData.x * 0.5),
         (audioData.x * 0.5),
-        // (audioData.x * 0.5),
         0.0
       );
       // END CUSTOM

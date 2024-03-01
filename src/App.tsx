@@ -3,7 +3,7 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import { Box, Environment, OrbitControls, PerspectiveCamera, View } from '@react-three/drei';
 import { Splat, SplatMaterialType } from './Splat';
 import { ReactNode, forwardRef, useRef } from 'react';
-import { Matrix4 } from 'three';
+import { Matrix4, Vector4 } from 'three';
 import { Scene } from './Scene';
 import { AudioProcessor } from './AudioProcessor';
 
@@ -16,6 +16,7 @@ const smallCamHFOV = (360 / Math.PI) * Math.atan(smallScreenWidth / 2 / smallDis
 const smallCamAspect = 1.6999;
 const smallCamMainFov =
   (Math.atan(Math.tan((smallCamHFOV * Math.PI) / 360) / smallCamAspect) * 360) / Math.PI;
+const smallViewport = new Vector4(0, 0, 1202, 742);
 
 const largeDistToCenter = 2.719;
 const largeScreenWidth = 11.936;
@@ -23,6 +24,7 @@ const largeCamHFOV = (360 / Math.PI) * Math.atan(largeScreenWidth / 2 / largeDis
 const largeCamAspect = 3.555;
 const largeCamMainFov =
   (Math.atan(Math.tan((largeCamHFOV * Math.PI) / 360) / largeCamAspect) * 360) / Math.PI;
+const largeViewport = new Vector4(0, 0, 2636, 742);
 
 function App() {
   const container = useRef<HTMLDivElement>(null!);
@@ -31,7 +33,7 @@ function App() {
       <div id="canvas-container" ref={container}>
         <div className="top-section">
           <PanelView className="panel panel-west">
-            <Scene matrix={matrix} />
+            <Scene matrix={matrix} viewport={smallViewport} />
             <PerspectiveCamera
               makeDefault
               position={[0, 0, 0]}
@@ -41,7 +43,7 @@ function App() {
             />
           </PanelView>
           <PanelView className="panel panel-north">
-            <Scene matrix={matrix} />
+            <Scene matrix={matrix} viewport={largeViewport} />
             <PerspectiveCamera
               makeDefault
               position={[0, 0, 0]}
@@ -51,7 +53,7 @@ function App() {
             />
           </PanelView>
           <PanelView className="panel panel-east">
-            <Scene matrix={matrix} />
+            <Scene matrix={matrix} viewport={smallViewport} />
             <PerspectiveCamera
               makeDefault
               position={[0, 0, 0]}
@@ -61,7 +63,7 @@ function App() {
             />
           </PanelView>
           <PanelView className="panel panel-south">
-            <Scene matrix={matrix} />
+            <Scene matrix={matrix} viewport={largeViewport} />
             <PerspectiveCamera
               makeDefault
               position={[0, 0, 0]}
@@ -72,11 +74,11 @@ function App() {
           </PanelView>
         </div>
 
-        {/* <PanelView className="bottom-section">
+        <PanelView className="bottom-section">
           <Scene matrix={matrix} />
           <PerspectiveCamera makeDefault position={[0, 0, 0.001]} />
           <OrbitControls enableZoom={false} target={[0, 0, 0]} />
-        </PanelView> */}
+        </PanelView>
         <Canvas
           dpr={[0.5, 1]}
           // camera={{ position: [-3, 1, -5.5], fov: 45, near: 1, far: 100 }}
