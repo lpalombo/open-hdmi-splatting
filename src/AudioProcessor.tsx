@@ -40,6 +40,9 @@ export function AudioProcessor() {
       navigator.mediaDevices.enumerateDevices().then(devices => {
         setDevices(devices);
         setDevice(devices[0].deviceId);
+        try {
+          handleMicOpen();
+        } catch (e) {}
       });
     });
     return () => {
@@ -56,8 +59,8 @@ export function AudioProcessor() {
     };
   }, []);
 
-  const handleMicOpen = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleMicOpen = async (e?: FormEvent<HTMLFormElement>) => {
+    e?.preventDefault();
     if (!device) return;
     await TONE.start();
     const filter = new TONE.Filter({
@@ -145,7 +148,7 @@ export function AudioProcessor() {
                   </option>
                 ))}
           </select>
-          <button>Start</button>
+          <button tabIndex={0}>Start</button>
         </form>
       </Html>
     </>

@@ -49,6 +49,12 @@ export const SPLAT_SCENES = {
     rotation: [0, 0, 0],
     scale: 1,
   },
+  sherlocksroom: {
+    src: 'https://pub-c94e113880784f8f8227940d6abceeef.r2.dev/gs_Sherlock_s_Room.splat',
+    position: [0, -1, 0],
+    rotation: [0, 0, 0],
+    scale: 1,
+  },
 } satisfies Record<
   string,
   { src: string; position: Vector3; rotation: Vector3; scale: Vector3 | number }
