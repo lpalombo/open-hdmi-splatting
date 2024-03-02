@@ -11,6 +11,7 @@ export type SplatWigglyMaterialType = {
   time?: number;
   audioTexture?: THREE.DataTexture;
   audioTextureMatrix?: THREE.Matrix3;
+  amplitude: number;
 };
 
 export const SplatWigglyMaterial = /* @__PURE__ */ shaderMaterial(
@@ -23,6 +24,7 @@ export const SplatWigglyMaterial = /* @__PURE__ */ shaderMaterial(
     time: 0,
     audioTexture: null,
     audioTextureMatrix: new THREE.Matrix3(),
+    amplitude: 0.5,
   },
   /*glsl*/ `
     precision highp sampler2D;
@@ -37,6 +39,7 @@ export const SplatWigglyMaterial = /* @__PURE__ */ shaderMaterial(
     uniform usampler2D covAndColorTexture;
     uniform sampler2D audioTexture;
     uniform mat3 audioTextureMatrix;
+    uniform float amplitude;
 
     // CUSTOM
     uniform float time;
@@ -66,7 +69,7 @@ export const SplatWigglyMaterial = /* @__PURE__ */ shaderMaterial(
       center.xyz += vec3(
         // sin(pow(bassData.x, 2.0) * 10.) * 0.2,
         (bassData.x * 0.5),
-        (audioData.x * 0.5),
+        (audioData.x * amplitude),
         0.0
       );
       // END CUSTOM

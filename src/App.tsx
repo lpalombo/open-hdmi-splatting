@@ -6,6 +6,7 @@ import { ReactNode, forwardRef, useRef } from 'react';
 import { Matrix4, Vector4 } from 'three';
 import { Scene } from './Scene';
 import { AudioProcessor } from './AudioProcessor';
+import { Controls } from './Controls';
 
 const matrix = new Matrix4();
 const HALF_PI = Math.PI / 2;
@@ -27,10 +28,17 @@ const largeCamMainFov =
 const largeViewport = new Vector4(0, 0, 2636, 742);
 
 // query param includes debug
-const debug = new URLSearchParams(window.location.search).has('debug');
+const search = new URLSearchParams(window.location.search);
+const debug = search.has('debug');
+const controls = search.has('controls');
 
 function App() {
   const container = useRef<HTMLDivElement>(null!);
+
+  if (controls) {
+    return <Controls />;
+  }
+
   return (
     <>
       <div id="canvas-container" ref={container}>

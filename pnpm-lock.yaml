@@ -29,11 +29,17 @@ dependencies:
   tone:
     specifier: ^14.7.77
     version: 14.7.77
+  tweakpane:
+    specifier: ^4.0.3
+    version: 4.0.3
   zustand:
     specifier: ^4.5.1
     version: 4.5.1(@types/react@18.2.48)(react@18.2.0)
 
 devDependencies:
+  '@tweakpane/core':
+    specifier: ^2.0.3
+    version: 2.0.3
   '@types/react':
     specifier: ^18.2.43
     version: 18.2.48
@@ -875,6 +881,10 @@ packages:
     requiresBuild: true
     dev: true
     optional: true
+
+  /@tweakpane/core@2.0.3:
+    resolution: {integrity: sha512-qHci4XA1Wngpwy8IzsLh5JEdscz8aDti/9YhyOaq01si+cgNDaZfwzTtXdn1+xTxSnCM+pW4Zb2/4eqn+K1ATw==}
+    dev: true
 
   /@types/babel__core@7.20.5:
     resolution: {integrity: sha512-qoQprZvz5wQFJwMDqeseRXWv3rqMvhgpbXFfVyWhbx9X47POIA6i/+dXefEmZKoAgOaTdaIgNSMqMIU61yRyzA==}
@@ -2306,6 +2316,10 @@ packages:
       - '@types/react'
       - immer
       - react
+    dev: false
+
+  /tweakpane@4.0.3:
+    resolution: {integrity: sha512-BlcWOAe8oe4c+k9pmLBARGdWB6MVZMszayekkixQXTgkxTaYoTUpHpwVEp+3HkoamZkomodpbBf0CkguIHTgLg==}
     dev: false
 
   /type-check@0.4.0:

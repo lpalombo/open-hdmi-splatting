@@ -10,6 +10,7 @@ import { extend, useThree, useFrame, useLoader, LoaderProto } from '@react-three
 import { SplatBaseMaterial, SplatBaseMaterialType } from './materials/splatBaseMaterial';
 import { SplatWigglyMaterial, SplatWigglyMaterialType } from './materials/splatWigglyMaterial';
 import { useAudioStore } from './AudioProcessor';
+import { useSettingsStore } from './SettingsStore';
 
 export type TargetMesh = THREE.Mesh<
   THREE.InstancedBufferGeometry,
@@ -601,6 +602,9 @@ export function Splat(props: SplatProps) {
     }
   });
 
+  const [amplitude] = useSettingsStore(state => [state.amplitude]);
+  console.log(amplitude);
+
   return (
     <mesh ref={ref} frustumCulled={false} {...restProps}>
       <splatWigglyMaterial
@@ -616,6 +620,7 @@ export function Splat(props: SplatProps) {
         alphaHash={!!alphaHash}
         toneMapped={toneMapped}
         audioTexture={audioTexture}
+        amplitude={amplitude}
       />
     </mesh>
   );
