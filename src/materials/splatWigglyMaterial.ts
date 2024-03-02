@@ -12,6 +12,10 @@ export type SplatWigglyMaterialType = {
   audioTexture?: THREE.DataTexture;
   audioTextureMatrix?: THREE.Matrix3;
   amplitude: number;
+  bassamplitude: number;
+  wavelength: number;
+  minvolume: number;
+  minbass: number;
 };
 
 export const SplatWigglyMaterial = /* @__PURE__ */ shaderMaterial(
@@ -25,6 +29,10 @@ export const SplatWigglyMaterial = /* @__PURE__ */ shaderMaterial(
     audioTexture: null,
     audioTextureMatrix: new THREE.Matrix3(),
     amplitude: 0.5,
+    bassamplitude: 0.5,
+    wavelength: 1,
+    minvolume: 0.1,
+    minbass: 0.1,
   },
   /*glsl*/ `
     precision highp sampler2D;
@@ -40,6 +48,10 @@ export const SplatWigglyMaterial = /* @__PURE__ */ shaderMaterial(
     uniform sampler2D audioTexture;
     uniform mat3 audioTextureMatrix;
     uniform float amplitude;
+    uniform float bassamplitude;
+    uniform float wavelength;
+    uniform float minvolume;
+    uniform float minbass;
 
     // CUSTOM
     uniform float time;
@@ -62,14 +74,23 @@ export const SplatWigglyMaterial = /* @__PURE__ */ shaderMaterial(
       vec4 center = vec4(centerAndScaleData.xyz, 1);
       ivec2 audioTexSize = textureSize(audioTexture, 0);
       ivec2 audioTexPos = ivec2(splatIndex%uint(audioTexSize.x), splatIndex/uint(audioTexSize.x));
-      vec4 bassData = texture2D(audioTexture, (audioTextureMatrix * vec3(center.z, 0.0, 1.0)).xy);
-      vec4 audioData = texture2D(audioTexture, vec2(center.z, 0.5));
+      vec4 bassData = texture2D(audioTexture, (audioTextureMatrix * vec3(center.z * wavelength, 0.0, 1.0)).xy);
+      vec4 audioData = texture2D(audioTexture, vec2(center.z * wavelength, 0.5));
+
+      float audioAmp = audioData.x * amplitude;
+      if (audioAmp < minvolume) {
+        audioAmp = 0.0;
+      }
+      float bassAmp = bassData.x * bassamplitude;
+      if (bassAmp < minbass) {
+        bassAmp = 0.0;
+      }
 
       // CUSTOM
       center.xyz += vec3(
-        // sin(pow(bassData.x, 2.0) * 10.) * 0.2,
-        (bassData.x * 0.5),
-        (audioData.x * amplitude),
+        // sin(pow(bassAmp, 2.0) * bassamplitude) * 0.2,
+        bassAmp,
+        audioAmp,
         0.0
       );
       // END CUSTOM

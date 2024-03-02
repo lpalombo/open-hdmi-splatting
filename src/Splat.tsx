@@ -602,9 +602,13 @@ export function Splat(props: SplatProps) {
     }
   });
 
-  const [amplitude] = useSettingsStore(state => [state.amplitude]);
-  console.log(amplitude);
-
+  const [amplitude, bassamplitude, wavelength, minvolume, minbass] = useSettingsStore(state => [
+    state.amplitude,
+    state.bassamplitude,
+    state.wavelength,
+    state.minvolume,
+    state.minbass,
+  ]);
   return (
     <mesh ref={ref} frustumCulled={false} {...restProps}>
       <splatWigglyMaterial
@@ -621,6 +625,10 @@ export function Splat(props: SplatProps) {
         toneMapped={toneMapped}
         audioTexture={audioTexture}
         amplitude={amplitude}
+        bassamplitude={bassamplitude}
+        wavelength={wavelength}
+        minvolume={minvolume}
+        minbass={minbass}
       />
     </mesh>
   );
